@@ -1,0 +1,33 @@
+{
+  "name": "proyectofinaldwssr",
+  "version": "1.0.0",
+  "description": "Este proyecto consiste en desarrollar una aplicación para monitorear variables relacionadas con el uso y comportamiento del agua, almacenar los datos y detectar posibles anomalías.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+  "dev": "node --watch server/index.js",
+  "start": "node server/index.js",
+  "test": "node --test"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rckytc/ProyectoFinalDWSSR.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/rckytc/ProyectoFinalDWSSR/issues"
+  },
+  "homepage": "https://github.com/rckytc/ProyectoFinalDWSSR#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "mongodb": "^7.7.0",
+    "mqtt": "^5.16.1"
+  }
+}
