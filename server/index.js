@@ -6,13 +6,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Ruta principal para comprobar que el servidor funciona
+// Ruta principal
 app.get('/', (req, res) => {
   res.json({
     proyecto: 'Proyecto Final DWSSR',
@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Ruta de comprobación de salud del servidor
+// Ruta de salud del servidor
 app.get('/api/health', (req, res) => {
   res.json({
     estado: 'correcto',
