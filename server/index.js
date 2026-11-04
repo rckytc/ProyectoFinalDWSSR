@@ -2,6 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { conectarMQTT } from './mqtt.js';
 
 dotenv.config();
 
@@ -34,4 +35,7 @@ app.get('/api/health', (req, res) => {
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor disponible en http://localhost:${PORT}`);
+
+  // Iniciar conexion MQTT
+  conectarMQTT();
 });
