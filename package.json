@@ -7,10 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
-  "dev": "node --watch server/index.js",
-  "start": "node server/index.js",
-  "test": "node --test"
-},
+    "dev": "node --watch server/index.js",
+    "start": "node server/index.js",
+    "test": "node --test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rckytc/ProyectoFinalDWSSR.git"
@@ -29,5 +29,10 @@
     "express": "^5.3.0",
     "mongodb": "^7.7.0",
     "mqtt": "^5.16.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.4",
+    "tailwindcss": "^4.3.4",
+    "vite": "^8.3.5"
   }
 }
