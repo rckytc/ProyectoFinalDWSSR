@@ -1,4 +1,6 @@
+
 import './style.css';
+import Chart from 'chart.js/auto';
 
 const app = document.querySelector('#app');
 
@@ -37,6 +39,41 @@ app.innerHTML = `
           -- L/min
         </p>
       </article>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-5 text-2xl font-bold text-slate-900">
+        Historial de mediciones
+      </h2>
+
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <article class="rounded-2xl bg-white p-6 shadow-sm">
+          <h3 class="mb-4 text-lg font-semibold text-slate-800">
+            Temperatura del agua (°C)
+          </h3>
+          <div class="relative h-64">
+            <canvas id="grafica-temperatura"></canvas>
+          </div>
+        </article>
+
+        <article class="rounded-2xl bg-white p-6 shadow-sm">
+          <h3 class="mb-4 text-lg font-semibold text-slate-800">
+            Nivel del agua
+          </h3>
+          <div class="relative h-64">
+            <canvas id="grafica-nivel"></canvas>
+          </div>
+        </article>
+
+        <article class="rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
+          <h3 class="mb-4 text-lg font-semibold text-slate-800">
+            Caudal de agua (L/min)
+          </h3>
+          <div class="relative h-64">
+            <canvas id="grafica-caudal"></canvas>
+          </div>
+        </article>
+      </div>
     </section>
 
     <section class="rounded-2xl bg-white p-6 shadow-sm">
@@ -90,6 +127,166 @@ const estadoElemento = document.querySelector('#estado');
 const tablaElemento = document.querySelector('#tabla-mediciones');
 const actualizacionElemento = document.querySelector('#actualizacion');
 
+// Configuración común para las gráficas.
+const opcionesComunes = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: false,
+  plugins: {
+    legend: {
+      display: false
+    }
+  },
+  scales: {
+    x: {
+      ticks: {
+        maxTicksLimit: 8
+      }
+    }
+  }
+};
+
+// Gráfica de temperatura.
+const graficaTemperatura = new Chart(
+  document.querySelector('#grafica-temperatura'),
+  {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Temperatura',
+        data: [],
+        borderColor: '#0891b2',
+        backgroundColor: 'rgba(8, 145, 178, 0.15)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      ...opcionesComunes,
+      scales: {
+        ...opcionesComunes.scales,
+        y: {
+          title: {
+            display: true,
+            text: 'Temperatura (°C)'
+          }
+        }
+      }
+    }
+  }
+);
+
+// Gráfica del nivel del agua.
+const graficaNivel = new Chart(
+  document.querySelector('#grafica-nivel'),
+  {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Nivel del agua',
+        data: [],
+        borderColor: '#16a34a',
+        backgroundColor: 'rgba(22, 163, 74, 0.15)',
+        fill: true,
+        stepped: true,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      ...opcionesComunes,
+      scales: {
+        ...opcionesComunes.scales,
+        y: {
+          min: -0.2,
+          max: 1.2,
+          ticks: {
+            stepSize: 1,
+            callback: (valor) => {
+              if (valor === 1) return 'Normal';
+              if (valor === 0) return 'Bajo';
+              return '';
+            }
+          },
+          title: {
+            display: true,
+            text: 'Estado del nivel'
+          }
+        }
+      },
+      plugins: {
+        ...opcionesComunes.plugins,
+        tooltip: {
+          callbacks: {
+            label: (context) =>
+              context.parsed.y === 1 ? 'Nivel normal' : 'Nivel bajo'
+          }
+        }
+      }
+    }
+  }
+);
+
+// Gráfica del caudal.
+const graficaCaudal = new Chart(
+  document.querySelector('#grafica-caudal'),
+  {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Caudal',
+        data: [],
+        borderColor: '#7c3aed',
+        backgroundColor: 'rgba(124, 58, 237, 0.15)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      ...opcionesComunes,
+      scales: {
+        ...opcionesComunes.scales,
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Caudal (L/min)'
+          }
+        }
+      }
+    }
+  }
+);
+
+// Actualizar las tres gráficas con las mediciones recibidas.
+function actualizarGraficas(mediciones) {
+  // Ordenar desde la medición más antigua hasta la más reciente.
+  const ordenadas = [...mediciones].reverse();
+
+  const etiquetas = ordenadas.map((medicion) =>
+    new Date(medicion.fechaRecepcion).toLocaleTimeString('es-MX')
+  );
+
+  graficaTemperatura.data.labels = etiquetas;
+  graficaTemperatura.data.datasets[0].data =
+    ordenadas.map((medicion) => medicion.temperaturaC);
+  graficaTemperatura.update();
+
+  graficaNivel.data.labels = etiquetas;
+  graficaNivel.data.datasets[0].data =
+    ordenadas.map((medicion) =>
+      medicion.nivelAgua === 'normal' ? 1 : 0
+    );
+  graficaNivel.update();
+
+  graficaCaudal.data.labels = etiquetas;
+  graficaCaudal.data.datasets[0].data =
+    ordenadas.map((medicion) => medicion.caudalLitrosMinuto);
+  graficaCaudal.update();
+}
+
 function mostrarMediciones(mediciones) {
   if (mediciones.length === 0) {
     tablaElemento.innerHTML = `
@@ -99,6 +296,9 @@ function mostrarMediciones(mediciones) {
         </td>
       </tr>
     `;
+
+    actualizarGraficas([]);
+    estadoElemento.textContent = 'Conectado';
     return;
   }
 
@@ -120,8 +320,11 @@ function mostrarMediciones(mediciones) {
     </tr>
   `).join('');
 
+  actualizarGraficas(mediciones);
+
   estadoElemento.textContent = 'Conectado';
-  estadoElemento.className = 'rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700';
+  estadoElemento.className =
+    'rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700';
 
   actualizacionElemento.textContent =
     `Última actualización: ${new Date().toLocaleTimeString('es-MX')}`;
@@ -142,7 +345,8 @@ async function cargarMediciones() {
     console.error('Error al cargar mediciones:', error);
 
     estadoElemento.textContent = 'Sin conexión';
-    estadoElemento.className = 'rounded-full bg-red-100 px-4 py-2 text-sm font-medium text-red-700';
+    estadoElemento.className =
+      'rounded-full bg-red-100 px-4 py-2 text-sm font-medium text-red-700';
 
     tablaElemento.innerHTML = `
       <tr>
