@@ -146,6 +146,28 @@ const alertasElemento = document.querySelector('#alertas');
 const tablaElemento = document.querySelector('#tabla-mediciones');
 const actualizacionElemento = document.querySelector('#actualizacion');
 
+// Convertir el nivel del agua a un valor numérico.
+function convertirNivel(nivel) {
+  const niveles = {
+    bajo: 0,
+    normal: 1,
+    lleno: 2
+  };
+
+  return niveles[nivel] ?? null;
+}
+
+// Mostrar el nombre del nivel con la primera letra en mayúscula.
+function mostrarNivel(nivel) {
+  const nombres = {
+    bajo: 'Bajo',
+    normal: 'Normal',
+    lleno: 'Lleno'
+  };
+
+  return nombres[nivel] || 'Desconocido';
+}
+
 // Configuración común para las gráficas.
 const opcionesComunes = {
   responsive: true,
@@ -219,10 +241,11 @@ const graficaNivel = new Chart(
         ...opcionesComunes.scales,
         y: {
           min: -0.2,
-          max: 1.2,
+          max: 2.2,
           ticks: {
             stepSize: 1,
             callback: (valor) => {
+              if (valor === 2) return 'Lleno';
               if (valor === 1) return 'Normal';
               if (valor === 0) return 'Bajo';
               return '';
@@ -238,8 +261,15 @@ const graficaNivel = new Chart(
         ...opcionesComunes.plugins,
         tooltip: {
           callbacks: {
-            label: (context) =>
-              context.parsed.y === 1 ? 'Nivel normal' : 'Nivel bajo'
+            label: (context) => {
+              const nombres = {
+                0: 'Nivel bajo',
+                1: 'Nivel normal',
+                2: 'Nivel lleno'
+              };
+
+              return nombres[context.parsed.y] || 'Nivel desconocido';
+            }
           }
         }
       }
@@ -281,7 +311,6 @@ const graficaCaudal = new Chart(
 
 // Actualizar las tres gráficas con las mediciones recibidas.
 function actualizarGraficas(mediciones) {
-  // Ordenar desde la medición más antigua hasta la más reciente.
   const ordenadas = [...mediciones].reverse();
 
   const etiquetas = ordenadas.map((medicion) =>
@@ -295,9 +324,7 @@ function actualizarGraficas(mediciones) {
 
   graficaNivel.data.labels = etiquetas;
   graficaNivel.data.datasets[0].data =
-    ordenadas.map((medicion) =>
-      medicion.nivelAgua === 'normal' ? 1 : 0
-    );
+    ordenadas.map((medicion) => convertirNivel(medicion.nivelAgua));
   graficaNivel.update();
 
   graficaCaudal.data.labels = etiquetas;
@@ -306,6 +333,7 @@ function actualizarGraficas(mediciones) {
   graficaCaudal.update();
 }
 
+// Actualizar las alertas según la última medición.
 function actualizarAlertas(medicion) {
   const alertas = [];
 
@@ -322,6 +350,14 @@ function actualizarAlertas(medicion) {
       tipo: 'warning',
       titulo: 'Nivel de agua bajo',
       mensaje: 'El nivel del agua se encuentra por debajo del nivel normal.'
+    });
+  }
+
+  if (medicion.nivelAgua === 'lleno') {
+    alertas.push({
+      tipo: 'info',
+      titulo: 'Nivel de agua lleno',
+      mensaje: 'El recipiente ha alcanzado el nivel máximo establecido.'
     });
   }
 
@@ -349,7 +385,9 @@ function actualizarAlertas(medicion) {
     <div class="rounded-xl p-4 ${
       alerta.tipo === 'danger'
         ? 'bg-red-100 text-red-800'
-        : 'bg-amber-100 text-amber-800'
+        : alerta.tipo === 'warning'
+          ? 'bg-amber-100 text-amber-800'
+          : 'bg-blue-100 text-blue-800'
     }">
       <p class="font-semibold">${alerta.titulo}</p>
       <p class="mt-1 text-sm">${alerta.mensaje}</p>
@@ -360,10 +398,11 @@ function actualizarAlertas(medicion) {
 function mostrarMediciones(mediciones) {
   if (mediciones.length === 0) {
     alertasElemento.innerHTML = `
-  <p class="rounded-xl bg-slate-100 p-4 text-sm text-slate-600">
-    Sin mediciones disponibles. Esperando nuevos datos...
-  </p>
-`;
+      <p class="rounded-xl bg-slate-100 p-4 text-sm text-slate-600">
+        Sin mediciones disponibles. Esperando nuevos datos...
+      </p>
+    `;
+
     tablaElemento.innerHTML = `
       <tr>
         <td colspan="5" class="p-4 text-center text-slate-500">
@@ -378,9 +417,11 @@ function mostrarMediciones(mediciones) {
   }
 
   const ultima = mediciones[0];
+
   actualizarAlertas(ultima);
+
   temperaturaElemento.textContent = `${ultima.temperaturaC} °C`;
-  nivelElemento.textContent = ultima.nivelAgua;
+  nivelElemento.textContent = mostrarNivel(ultima.nivelAgua);
   caudalElemento.textContent = `${ultima.caudalLitrosMinuto} L/min`;
 
   tablaElemento.innerHTML = mediciones.map((medicion) => `
@@ -389,7 +430,7 @@ function mostrarMediciones(mediciones) {
         ${new Date(medicion.fechaRecepcion).toLocaleString('es-MX')}
       </td>
       <td class="p-3">${medicion.temperaturaC} °C</td>
-      <td class="p-3">${medicion.nivelAgua}</td>
+      <td class="p-3">${mostrarNivel(medicion.nivelAgua)}</td>
       <td class="p-3">${medicion.caudalLitrosMinuto} L/min</td>
       <td class="p-3">
         <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${

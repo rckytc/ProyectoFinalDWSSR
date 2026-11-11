@@ -54,11 +54,10 @@ function validarMedicion(medicion) {
     return 'La temperatura debe ser un número válido.';
   }
 
-  if (
-    medicion.nivelAgua !== 'normal'
-    && medicion.nivelAgua !== 'bajo'
-  ) {
-    return 'El nivel del agua debe ser normal o bajo.';
+  const nivelesPermitidos = ['bajo', 'normal', 'lleno'];
+
+  if (!nivelesPermitidos.includes(medicion.nivelAgua)) {
+    return 'El nivel del agua debe ser bajo, normal o lleno.';
   }
 
   if (

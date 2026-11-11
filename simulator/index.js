@@ -11,32 +11,19 @@ const MQTT_TOPIC = process.env.MQTT_TOPIC || 'agua/mediciones';
 // Genera mediciones temporales para probar el sistema.
 // Estos datos NO provienen de sensores físicos.
 function generarMedicion() {
+  const nivelesAgua = ['bajo', 'normal', 'lleno'];
+  const nivelAleatorio = Math.floor(Math.random() * nivelesAgua.length);
+
   return {
     timestamp: new Date().toISOString(),
     origen: 'simulado',
     temperaturaC: Number((20 + Math.random() * 10).toFixed(2)),
-    nivelAgua: Math.random() > 0.2 ? 'normal' : 'bajo',
+    nivelAgua: nivelesAgua[nivelAleatorio],
     caudalLitrosMinuto: Number((2 + Math.random() * 8).toFixed(2))
   };
 }
 
 const clienteMQTT = mqtt.connect(MQTT_URL);
-
-clienteMQTT.on('connect', () => {
-  console.log('Simulador de monitoreo de agua iniciado.');
-  console.log('Origen de datos: SIMULADO');
-  console.log(`Conectado a MQTT: ${MQTT_URL}`);
-  console.log(`Tema: ${MQTT_TOPIC}`);
-  console.log('Intervalo: 3 segundos');
-  console.log('Presiona Ctrl + C para detenerlo.');
-  console.log('--------------------------------');
-
-  publicarMedicion();
-
-  if (!intervalo) {
-    intervalo = setInterval(publicarMedicion, INTERVAL_MS);
-  }
-});
 
 let intervalo = null;
 
@@ -58,6 +45,22 @@ function publicarMedicion() {
     }
   );
 }
+
+clienteMQTT.on('connect', () => {
+  console.log('Simulador de monitoreo de agua iniciado.');
+  console.log('Origen de datos: SIMULADO');
+  console.log(`Conectado a MQTT: ${MQTT_URL}`);
+  console.log(`Tema: ${MQTT_TOPIC}`);
+  console.log('Intervalo: 3 segundos');
+  console.log('Presiona Ctrl + C para detenerlo.');
+  console.log('--------------------------------');
+
+  publicarMedicion();
+
+  if (!intervalo) {
+    intervalo = setInterval(publicarMedicion, INTERVAL_MS);
+  }
+});
 
 clienteMQTT.on('error', (error) => {
   console.error('Error de conexion MQTT:', error.message);
