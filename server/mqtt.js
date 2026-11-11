@@ -9,6 +9,69 @@ const MQTT_TOPIC = process.env.MQTT_TOPIC || 'agua/mediciones';
 
 let clienteMQTT = null;
 
+// Validar la estructura y los valores de una medición.
+function validarMedicion(medicion) {
+  if (
+    typeof medicion !== 'object'
+    || medicion === null
+    || Array.isArray(medicion)
+  ) {
+    return 'El mensaje debe contener un objeto JSON válido.';
+  }
+
+  const camposObligatorios = [
+    'timestamp',
+    'origen',
+    'temperaturaC',
+    'nivelAgua',
+    'caudalLitrosMinuto'
+  ];
+
+  for (const campo of camposObligatorios) {
+    if (!Object.hasOwn(medicion, campo)) {
+      return `Falta el campo obligatorio: ${campo}.`;
+    }
+  }
+
+  if (
+    medicion.origen !== 'simulado'
+    && medicion.origen !== 'fisico'
+  ) {
+    return 'El origen debe ser simulado o fisico.';
+  }
+
+  if (
+    typeof medicion.timestamp !== 'string'
+    || Number.isNaN(Date.parse(medicion.timestamp))
+  ) {
+    return 'El timestamp no contiene una fecha válida.';
+  }
+
+  if (
+    typeof medicion.temperaturaC !== 'number'
+    || !Number.isFinite(medicion.temperaturaC)
+  ) {
+    return 'La temperatura debe ser un número válido.';
+  }
+
+  if (
+    medicion.nivelAgua !== 'normal'
+    && medicion.nivelAgua !== 'bajo'
+  ) {
+    return 'El nivel del agua debe ser normal o bajo.';
+  }
+
+  if (
+    typeof medicion.caudalLitrosMinuto !== 'number'
+    || !Number.isFinite(medicion.caudalLitrosMinuto)
+    || medicion.caudalLitrosMinuto < 0
+  ) {
+    return 'El caudal debe ser un número válido y no negativo.';
+  }
+
+  return null;
+}
+
 // Conectar con el broker MQTT
 export function conectarMQTT(db) {
   if (!MQTT_URL) {
@@ -39,21 +102,21 @@ export function conectarMQTT(db) {
     try {
       const medicion = JSON.parse(mensaje.toString());
 
-      if (
-        typeof medicion !== 'object'
-        || medicion === null
-        || Array.isArray(medicion)
-      ) {
-        throw new Error('El mensaje recibido no contiene un objeto JSON valido.');
+      const errorValidacion = validarMedicion(medicion);
+
+      if (errorValidacion) {
+        console.error('Medicion rechazada:', errorValidacion);
+        return;
       }
 
       console.log('Medicion recibida por MQTT:');
       console.log({
         tema: topic,
+        origen: medicion.origen,
         datos: medicion
       });
 
-      // Guardar medicion en MongoDB Atlas
+      // Guardar medicion validada en MongoDB Atlas
       if (db) {
         const documento = {
           ...medicion,
