@@ -316,7 +316,23 @@ function mostrarMediciones(mediciones) {
       <td class="p-3">${medicion.temperaturaC} °C</td>
       <td class="p-3">${medicion.nivelAgua}</td>
       <td class="p-3">${medicion.caudalLitrosMinuto} L/min</td>
-      <td class="p-3">${medicion.origen}</td>
+      <td class="p-3">
+  <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+    medicion.origen === 'fisico'
+      ? 'bg-blue-100 text-blue-700'
+      : medicion.origen === 'simulado'
+        ? 'bg-amber-100 text-amber-700'
+        : 'bg-slate-100 text-slate-600'
+  }">
+    ${
+      medicion.origen === 'fisico'
+        ? 'FÍSICO'
+        : medicion.origen === 'simulado'
+          ? 'SIMULADO'
+          : 'DESCONOCIDO'
+    }
+  </span>
+</td>
     </tr>
   `).join('');
 
