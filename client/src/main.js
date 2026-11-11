@@ -41,6 +41,24 @@ app.innerHTML = `
       </article>
     </section>
 
+    <!-- Alertas del sistema -->
+    <section class="mb-8 rounded-2xl bg-white p-6 shadow-sm">
+      <div class="mb-4">
+        <h2 class="text-xl font-bold text-slate-900">
+          Alertas del sistema
+        </h2>
+        <p class="mt-1 text-sm text-slate-500">
+          Estado actual de las condiciones del agua
+        </p>
+      </div>
+
+      <div id="alertas" class="space-y-3">
+        <p class="rounded-xl bg-slate-100 p-4 text-sm text-slate-600">
+          Esperando mediciones...
+        </p>
+      </div>
+    </section>
+
     <section class="mb-8">
       <h2 class="mb-5 text-2xl font-bold text-slate-900">
         Historial de mediciones
@@ -124,6 +142,7 @@ const temperaturaElemento = document.querySelector('#temperatura');
 const nivelElemento = document.querySelector('#nivel');
 const caudalElemento = document.querySelector('#caudal');
 const estadoElemento = document.querySelector('#estado');
+const alertasElemento = document.querySelector('#alertas');
 const tablaElemento = document.querySelector('#tabla-mediciones');
 const actualizacionElemento = document.querySelector('#actualizacion');
 
@@ -287,8 +306,64 @@ function actualizarGraficas(mediciones) {
   graficaCaudal.update();
 }
 
+function actualizarAlertas(medicion) {
+  const alertas = [];
+
+  if (medicion.temperaturaC > 30) {
+    alertas.push({
+      tipo: 'danger',
+      titulo: 'Temperatura alta',
+      mensaje: `La temperatura es de ${medicion.temperaturaC} °C. El límite establecido es 30 °C.`
+    });
+  }
+
+  if (medicion.nivelAgua === 'bajo') {
+    alertas.push({
+      tipo: 'warning',
+      titulo: 'Nivel de agua bajo',
+      mensaje: 'El nivel del agua se encuentra por debajo del nivel normal.'
+    });
+  }
+
+  if (medicion.caudalLitrosMinuto === 0) {
+    alertas.push({
+      tipo: 'danger',
+      titulo: 'Sin flujo de agua',
+      mensaje: 'No se está detectando circulación de agua.'
+    });
+  }
+
+  if (alertas.length === 0) {
+    alertasElemento.innerHTML = `
+      <div class="rounded-xl bg-green-100 p-4 text-green-800">
+        <p class="font-semibold">Sistema funcionando correctamente</p>
+        <p class="mt-1 text-sm">
+          No se detectaron condiciones anormales en la última medición.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  alertasElemento.innerHTML = alertas.map((alerta) => `
+    <div class="rounded-xl p-4 ${
+      alerta.tipo === 'danger'
+        ? 'bg-red-100 text-red-800'
+        : 'bg-amber-100 text-amber-800'
+    }">
+      <p class="font-semibold">${alerta.titulo}</p>
+      <p class="mt-1 text-sm">${alerta.mensaje}</p>
+    </div>
+  `).join('');
+}
+
 function mostrarMediciones(mediciones) {
   if (mediciones.length === 0) {
+    alertasElemento.innerHTML = `
+  <p class="rounded-xl bg-slate-100 p-4 text-sm text-slate-600">
+    Sin mediciones disponibles. Esperando nuevos datos...
+  </p>
+`;
     tablaElemento.innerHTML = `
       <tr>
         <td colspan="5" class="p-4 text-center text-slate-500">
@@ -303,7 +378,7 @@ function mostrarMediciones(mediciones) {
   }
 
   const ultima = mediciones[0];
-
+  actualizarAlertas(ultima);
   temperaturaElemento.textContent = `${ultima.temperaturaC} °C`;
   nivelElemento.textContent = ultima.nivelAgua;
   caudalElemento.textContent = `${ultima.caudalLitrosMinuto} L/min`;
@@ -317,22 +392,22 @@ function mostrarMediciones(mediciones) {
       <td class="p-3">${medicion.nivelAgua}</td>
       <td class="p-3">${medicion.caudalLitrosMinuto} L/min</td>
       <td class="p-3">
-  <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-    medicion.origen === 'fisico'
-      ? 'bg-blue-100 text-blue-700'
-      : medicion.origen === 'simulado'
-        ? 'bg-amber-100 text-amber-700'
-        : 'bg-slate-100 text-slate-600'
-  }">
-    ${
-      medicion.origen === 'fisico'
-        ? 'FÍSICO'
-        : medicion.origen === 'simulado'
-          ? 'SIMULADO'
-          : 'DESCONOCIDO'
-    }
-  </span>
-</td>
+        <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+          medicion.origen === 'fisico'
+            ? 'bg-blue-100 text-blue-700'
+            : medicion.origen === 'simulado'
+              ? 'bg-amber-100 text-amber-700'
+              : 'bg-slate-100 text-slate-600'
+        }">
+          ${
+            medicion.origen === 'fisico'
+              ? 'FÍSICO'
+              : medicion.origen === 'simulado'
+                ? 'SIMULADO'
+                : 'DESCONOCIDO'
+          }
+        </span>
+      </td>
     </tr>
   `).join('');
 
