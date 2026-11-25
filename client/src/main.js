@@ -6,7 +6,7 @@ const app = document.querySelector('#app');
 app.innerHTML = `
   <main class="mx-auto min-h-screen max-w-7xl p-5 sm:p-8 md:p-10">
     <header class="mb-8 rounded-2xl border border-slate-200/90 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p class="text-xs font-bold uppercase tracking-widest text-cyan-700">
             Proyecto Final DWSSR
@@ -19,9 +19,19 @@ app.innerHTML = `
           </p>
         </div>
 
-        <div class="inline-flex w-fit items-center gap-2 rounded-xl border border-cyan-200/80 bg-cyan-50/70 px-3.5 py-2 text-xs font-semibold text-cyan-800">
-          <span class="h-2 w-2 rounded-full bg-cyan-600"></span>
-          Telemetría en tiempo real
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="inline-flex w-fit items-center gap-2 rounded-xl border border-cyan-200/80 bg-cyan-50/70 px-3.5 py-2 text-xs font-semibold text-cyan-800">
+            <span class="h-2 w-2 rounded-full bg-cyan-600"></span>
+            Telemetría en tiempo real
+          </div>
+
+          <button
+            id="btn-tema"
+            type="button"
+            class="cursor-pointer rounded-xl border border-slate-300 bg-slate-100 px-3.5 py-2 text-xs font-semibold text-slate-800 transition-colors duration-200 hover:bg-slate-200"
+          >
+            Modo oscuro
+          </button>
         </div>
       </div>
     </header>
@@ -159,6 +169,7 @@ const estadoElemento = document.querySelector('#estado');
 const alertasElemento = document.querySelector('#alertas');
 const tablaElemento = document.querySelector('#tabla-mediciones');
 const actualizacionElemento = document.querySelector('#actualizacion');
+const botonTema = document.querySelector('#btn-tema');
 
 // Convertir el nivel del agua a un valor numérico.
 function convertirNivel(nivel) {
@@ -195,7 +206,19 @@ const opcionesComunes = {
   scales: {
     x: {
       ticks: {
-        maxTicksLimit: 8
+        maxTicksLimit: 8,
+        color: '#64748b'
+      },
+      grid: {
+        color: 'rgba(148, 163, 184, 0.15)'
+      }
+    },
+    y: {
+      ticks: {
+        color: '#64748b'
+      },
+      grid: {
+        color: 'rgba(148, 163, 184, 0.15)'
       }
     }
   }
@@ -222,9 +245,11 @@ const graficaTemperatura = new Chart(
       scales: {
         ...opcionesComunes.scales,
         y: {
+          ...opcionesComunes.scales.y,
           title: {
             display: true,
-            text: 'Temperatura (°C)'
+            text: 'Temperatura (°C)',
+            color: '#64748b'
           }
         }
       }
@@ -254,9 +279,11 @@ const graficaNivel = new Chart(
       scales: {
         ...opcionesComunes.scales,
         y: {
+          ...opcionesComunes.scales.y,
           min: -0.2,
           max: 2.2,
           ticks: {
+            ...opcionesComunes.scales.y.ticks,
             stepSize: 1,
             callback: (valor) => {
               if (valor === 2) return 'Lleno';
@@ -267,7 +294,8 @@ const graficaNivel = new Chart(
           },
           title: {
             display: true,
-            text: 'Estado del nivel'
+            text: 'Estado del nivel',
+            color: '#64748b'
           }
         }
       },
@@ -312,16 +340,44 @@ const graficaCaudal = new Chart(
       scales: {
         ...opcionesComunes.scales,
         y: {
+          ...opcionesComunes.scales.y,
           beginAtZero: true,
           title: {
             display: true,
-            text: 'Caudal (L/min)'
+            text: 'Caudal (L/min)',
+            color: '#64748b'
           }
         }
       }
     }
   }
 );
+
+// Sincronizar colores de las gráficas con el tema activo.
+function actualizarColoresGraficas(esOscuro) {
+  const colorTexto = esOscuro ? '#cbd5e1' : '#64748b';
+  const colorRejilla = esOscuro
+    ? 'rgba(148, 163, 184, 0.14)'
+    : 'rgba(148, 163, 184, 0.18)';
+
+  [graficaTemperatura, graficaNivel, graficaCaudal].forEach((grafica) => {
+    grafica.options.scales.x.ticks.color = colorTexto;
+    grafica.options.scales.x.grid.color = colorRejilla;
+    grafica.options.scales.y.ticks.color = colorTexto;
+    grafica.options.scales.y.grid.color = colorRejilla;
+    if (grafica.options.scales.y.title) {
+      grafica.options.scales.y.title.color = colorTexto;
+    }
+    grafica.update();
+  });
+}
+
+// Alternar entre modo claro y modo oscuro.
+botonTema.addEventListener('click', () => {
+  const esOscuro = document.body.classList.toggle('modo-oscuro');
+  botonTema.textContent = esOscuro ? 'Modo claro' : 'Modo oscuro';
+  actualizarColoresGraficas(esOscuro);
+});
 
 // Actualizar las tres gráficas con las mediciones recibidas.
 function actualizarGraficas(mediciones) {

@@ -15,7 +15,86 @@ body {
     radial-gradient(circle at top right, rgba(6, 182, 212, 0.08), transparent 42%),
     linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
   color: #0f172a;
+  transition: background 0.25s ease, color 0.25s ease;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Tema oscuro activado mediante el botón */
+body.modo-oscuro {
+  background:
+    radial-gradient(circle at top right, rgba(6, 182, 212, 0.14), transparent 45%),
+    linear-gradient(180deg, #090d16 0%, #0f172a 100%);
+  color: #f1f5f9;
+}
+
+body.modo-oscuro header,
+body.modo-oscuro section,
+body.modo-oscuro article {
+  background-color: rgba(15, 23, 42, 0.92);
+  border-color: rgba(51, 65, 85, 0.85);
+}
+
+body.modo-oscuro h1,
+body.modo-oscuro h2,
+body.modo-oscuro h3,
+body.modo-oscuro #temperatura,
+body.modo-oscuro #nivel,
+body.modo-oscuro #caudal {
+  color: #f8fafc;
+}
+
+body.modo-oscuro p,
+body.modo-oscuro th,
+body.modo-oscuro td {
+  color: #cbd5e1;
+}
+
+body.modo-oscuro thead {
+  background-color: rgba(30, 41, 59, 0.85);
+  border-color: rgba(51, 65, 85, 0.85);
+}
+
+body.modo-oscuro tbody tr:hover {
+  background-color: rgba(30, 41, 59, 0.65);
+}
+
+body.modo-oscuro #alertas > p,
+body.modo-oscuro #estado {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+/* Mantener buen contraste en las tarjetas de alerta y etiquetas de origen */
+body.modo-oscuro #alertas .bg-green-100,
+body.modo-oscuro #alertas .bg-green-100 p {
+  color: #166534;
+}
+
+body.modo-oscuro #alertas .bg-amber-100,
+body.modo-oscuro #alertas .bg-amber-100 p {
+  color: #92400e;
+}
+
+body.modo-oscuro #alertas .bg-red-100,
+body.modo-oscuro #alertas .bg-red-100 p {
+  color: #991b1b;
+}
+
+body.modo-oscuro #alertas .bg-blue-100,
+body.modo-oscuro #alertas .bg-blue-100 p {
+  color: #1e40af;
+}
+
+body.modo-oscuro td span.bg-blue-100 {
+  color: #1d4ed8;
+}
+
+body.modo-oscuro td span.bg-amber-100 {
+  color: #b45309;
+}
+
+body.modo-oscuro td span.bg-slate-100 {
+  color: #475569;
 }
 
 /* Números alineados para evitar saltos al actualizarse cada 3 segundos */
@@ -27,6 +106,11 @@ body {
 ::selection {
   background-color: #cffafe;
   color: #0e7490;
+}
+
+body.modo-oscuro ::selection {
+  background-color: #164e63;
+  color: #cffafe;
 }
 
 /* Barra de desplazamiento discreta en contenedores con scroll */
@@ -47,4 +131,16 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+body.modo-oscuro ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+body.modo-oscuro ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+body.modo-oscuro ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
