@@ -1,50 +1,64 @@
-
 import './style.css';
 import Chart from 'chart.js/auto';
 
 const app = document.querySelector('#app');
 
 app.innerHTML = `
-  <main class="min-h-screen p-6 md:p-10">
-    <header class="mb-8">
-      <p class="text-sm font-semibold uppercase tracking-widest text-cyan-700">
-        Proyecto Final DWSSR
-      </p>
-      <h1 class="mt-2 text-3xl font-bold text-slate-900 md:text-4xl">
-        AguaDWSSR
-      </h1>
-      <p class="mt-2 text-slate-600">
-        Sistema de monitoreo inteligente de agua
-      </p>
+  <main class="mx-auto min-h-screen max-w-7xl p-5 sm:p-8 md:p-10">
+    <header class="mb-8 rounded-2xl border border-slate-200/90 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-cyan-700">
+            Proyecto Final DWSSR
+          </p>
+          <h1 class="mt-1 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
+            AguaDWSSR
+          </h1>
+          <p class="mt-1.5 text-sm text-slate-600 sm:text-base">
+            Sistema de monitoreo inteligente de agua
+          </p>
+        </div>
+
+        <div class="inline-flex w-fit items-center gap-2 rounded-xl border border-cyan-200/80 bg-cyan-50/70 px-3.5 py-2 text-xs font-semibold text-cyan-800">
+          <span class="h-2 w-2 rounded-full bg-cyan-600"></span>
+          Telemetría en tiempo real
+        </div>
+      </div>
     </header>
 
     <section class="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-      <article class="rounded-2xl bg-white p-6 shadow-sm">
-        <p class="text-sm font-medium text-slate-500">Temperatura del agua</p>
-        <p id="temperatura" class="mt-3 text-4xl font-bold text-slate-900">
+      <article class="group rounded-2xl border border-slate-200/90 border-t-4 border-t-cyan-600 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Temperatura del agua
+        </p>
+        <p id="temperatura" class="tabular-nums mt-3 text-4xl font-bold tracking-tight text-slate-900">
           -- °C
         </p>
       </article>
 
-      <article class="rounded-2xl bg-white p-6 shadow-sm">
-        <p class="text-sm font-medium text-slate-500">Nivel del agua</p>
-        <p id="nivel" class="mt-3 text-4xl font-bold text-slate-900">
+      <article class="group rounded-2xl border border-slate-200/90 border-t-4 border-t-emerald-600 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Nivel del agua
+        </p>
+        <p id="nivel" class="tabular-nums mt-3 text-4xl font-bold tracking-tight text-slate-900">
           --
         </p>
       </article>
 
-      <article class="rounded-2xl bg-white p-6 shadow-sm">
-        <p class="text-sm font-medium text-slate-500">Caudal de agua</p>
-        <p id="caudal" class="mt-3 text-4xl font-bold text-slate-900">
+      <article class="group rounded-2xl border border-slate-200/90 border-t-4 border-t-violet-600 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Caudal de agua
+        </p>
+        <p id="caudal" class="tabular-nums mt-3 text-4xl font-bold tracking-tight text-slate-900">
           -- L/min
         </p>
       </article>
     </section>
 
     <!-- Alertas del sistema -->
-    <section class="mb-8 rounded-2xl bg-white p-6 shadow-sm">
-      <div class="mb-4">
-        <h2 class="text-xl font-bold text-slate-900">
+    <section class="mb-8 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
+      <div class="mb-4 border-b border-slate-100 pb-3">
+        <h2 class="text-xl font-bold tracking-tight text-slate-900">
           Alertas del sistema
         </h2>
         <p class="mt-1 text-sm text-slate-500">
@@ -53,20 +67,20 @@ app.innerHTML = `
       </div>
 
       <div id="alertas" class="space-y-3">
-        <p class="rounded-xl bg-slate-100 p-4 text-sm text-slate-600">
+        <p class="rounded-xl border border-slate-200/70 bg-slate-50 p-4 text-sm text-slate-600">
           Esperando mediciones...
         </p>
       </div>
     </section>
 
     <section class="mb-8">
-      <h2 class="mb-5 text-2xl font-bold text-slate-900">
+      <h2 class="mb-5 text-2xl font-bold tracking-tight text-slate-900">
         Historial de mediciones
       </h2>
 
       <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <article class="rounded-2xl bg-white p-6 shadow-sm">
-          <h3 class="mb-4 text-lg font-semibold text-slate-800">
+        <article class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
+          <h3 class="mb-4 border-b border-slate-100 pb-2.5 text-base font-semibold text-slate-800">
             Temperatura del agua (°C)
           </h3>
           <div class="relative h-64">
@@ -74,8 +88,8 @@ app.innerHTML = `
           </div>
         </article>
 
-        <article class="rounded-2xl bg-white p-6 shadow-sm">
-          <h3 class="mb-4 text-lg font-semibold text-slate-800">
+        <article class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
+          <h3 class="mb-4 border-b border-slate-100 pb-2.5 text-base font-semibold text-slate-800">
             Nivel del agua
           </h3>
           <div class="relative h-64">
@@ -83,8 +97,8 @@ app.innerHTML = `
           </div>
         </article>
 
-        <article class="rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
-          <h3 class="mb-4 text-lg font-semibold text-slate-800">
+        <article class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md lg:col-span-2">
+          <h3 class="mb-4 border-b border-slate-100 pb-2.5 text-base font-semibold text-slate-800">
             Caudal de agua (L/min)
           </h3>
           <div class="relative h-64">
@@ -94,10 +108,10 @@ app.innerHTML = `
       </div>
     </section>
 
-    <section class="rounded-2xl bg-white p-6 shadow-sm">
-      <div class="flex flex-wrap items-center justify-between gap-3">
+    <section class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
-          <h2 class="text-xl font-bold text-slate-900">
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">
             Últimas mediciones
           </h2>
           <p class="mt-1 text-sm text-slate-500">
@@ -110,18 +124,18 @@ app.innerHTML = `
         </span>
       </div>
 
-      <div class="mt-5 overflow-x-auto">
+      <div class="mt-5 overflow-x-auto rounded-xl border border-slate-100">
         <table class="w-full text-left text-sm">
-          <thead class="border-b border-slate-200 text-slate-500">
+          <thead class="border-b border-slate-200 bg-slate-50/90 text-xs font-semibold uppercase tracking-wider text-slate-500">
             <tr>
-              <th class="p-3">Fecha</th>
-              <th class="p-3">Temperatura</th>
-              <th class="p-3">Nivel</th>
-              <th class="p-3">Caudal</th>
-              <th class="p-3">Origen</th>
+              <th class="p-3.5">Fecha</th>
+              <th class="p-3.5">Temperatura</th>
+              <th class="p-3.5">Nivel</th>
+              <th class="p-3.5">Caudal</th>
+              <th class="p-3.5">Origen</th>
             </tr>
           </thead>
-          <tbody id="tabla-mediciones">
+          <tbody id="tabla-mediciones" class="divide-y divide-slate-100">
             <tr>
               <td colspan="5" class="p-4 text-center text-slate-500">
                 Cargando mediciones...
@@ -131,7 +145,7 @@ app.innerHTML = `
         </table>
       </div>
 
-      <p id="actualizacion" class="mt-4 text-xs text-slate-400">
+      <p id="actualizacion" class="tabular-nums mt-4 text-xs text-slate-400">
         Esperando primera actualización...
       </p>
     </section>
@@ -426,13 +440,13 @@ function mostrarMediciones(mediciones) {
 
   tablaElemento.innerHTML = mediciones.map((medicion) => `
     <tr class="border-b border-slate-100 hover:bg-slate-50">
-      <td class="whitespace-nowrap p-3">
+      <td class="tabular-nums whitespace-nowrap p-3.5">
         ${new Date(medicion.fechaRecepcion).toLocaleString('es-MX')}
       </td>
-      <td class="p-3">${medicion.temperaturaC} °C</td>
-      <td class="p-3">${mostrarNivel(medicion.nivelAgua)}</td>
-      <td class="p-3">${medicion.caudalLitrosMinuto} L/min</td>
-      <td class="p-3">
+      <td class="tabular-nums p-3.5">${medicion.temperaturaC} °C</td>
+      <td class="p-3.5">${mostrarNivel(medicion.nivelAgua)}</td>
+      <td class="tabular-nums p-3.5">${medicion.caudalLitrosMinuto} L/min</td>
+      <td class="p-3.5">
         <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
           medicion.origen === 'fisico'
             ? 'bg-blue-100 text-blue-700'
